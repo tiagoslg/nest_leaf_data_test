@@ -23,14 +23,15 @@ def get_as_list(keys, obj_):
 
     i = 0
     for key in reversed(keys):
-        key_value = obj_.pop(key)
+        if key in obj_:
+            key_value = obj_.pop(key)
 
-        if i == 0:
-            d = {key_value: [obj_]}
-        else:
-            d = {key_value: d}
+            if i == 0:
+                d = {key_value: [obj_]}
+            else:
+                d = {key_value: d}
 
-        i += 1
+            i += 1
 
     return d
 

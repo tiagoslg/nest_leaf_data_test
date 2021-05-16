@@ -2,9 +2,10 @@ import json
 
 from flask import Flask, request
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 
-from utils import get_random_string
+from utils.utils import create_user as json_create_user
+
 from nest import create_nest
 
 app = Flask(__name__)
@@ -65,20 +66,9 @@ def create_user():
 
     assert 'user_name' in _payload, "Missing username data"
 
-    _users = json.loads(open('users.json').read())
-
     _user_name = _payload.get('user_name')
 
-    assert _user_name not in _users, "Username already exists"
-
-    _password = get_random_string(8)
-
-    _users.update({
-        _user_name: generate_password_hash(_password)
-    })
-
-    with open('users.json', 'w') as f:
-        f.write(json.dumps(_users))
+    _password = json_create_user(_user_name)
 
     return {"user_name": _user_name, "password": _password}
 
