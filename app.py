@@ -10,6 +10,13 @@ from nest import create_nest
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
+try:
+    open('users.json')
+except FileNotFoundError:
+    f = open('users.json', 'x')
+    f.write(json.dumps({}))
+    f.close()
+
 
 @auth.verify_password
 def verify_password(username, password):
