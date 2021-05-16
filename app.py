@@ -43,6 +43,22 @@ def process_json():
     return create_nest(_data, _keys)
 
 
+@app.route('/process-default-sample', methods=['POST'])
+@auth.login_required
+def process_default_sample():
+    _payload = request.get_json(silent=True, force=True) or {}
+
+    assert 'keys' in _payload, "Missing keys information"
+
+    _keys = _payload['keys']
+
+    assert type(_keys) is list
+
+    _data = json.loads(open('sample.json').read())
+
+    return create_nest(_data, _keys)
+
+
 @app.route("/create-user", methods=['POST'])
 def create_user():
     _payload = request.get_json(silent=True, force=True) or {}
