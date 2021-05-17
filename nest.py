@@ -3,10 +3,10 @@ import sys
 import json
 
 
-def update(d, u):
+def dict_update(d, u):
     for k, v in u.items():
         if isinstance(v, collections.abc.Mapping):
-            d[k] = update(d.get(k, {}), v)
+            d[k] = dict_update(d.get(k, {}), v)
         else:
             if type(d.get(k)) is list:
                 d[k].extend(v)
@@ -38,12 +38,12 @@ def get_as_list(keys, obj_):
 
 def create_nest(sample, args):
 
-    ret = {}
+    data_ret = {}
 
     for data_ in sample:
-        update(ret, get_as_list(args, data_))
+        dict_update(data_ret, get_as_list(args, data_))
 
-    return ret
+    return data_ret
 
 
 if __name__ == '__main__':

@@ -18,10 +18,13 @@ except FileNotFoundError:
     f.write(json.dumps({}))
     f.close()
 
+app.config['USER_FILE'] = 'users.json'
+
 
 @auth.verify_password
 def verify_password(username, password):
-    users = json.loads(open('users.json').read())
+    user_file = app.config.get('USER_FILE')
+    users = json.loads(open(user_file).read())
     if username in users and \
             check_password_hash(users.get(username), password):
         return username
@@ -32,14 +35,20 @@ def verify_password(username, password):
 def process_json():
     _payload = request.get_json(silent=True, force=True) or {}
 
-    assert 'keys' in _payload, "Missing keys information"
-    assert 'data' in _payload, "Missing data information"
+    if 'keys' not in _payload:
+        return {'error': "Missing required keys information"}, 412
+
+    if 'data' not in _payload:
+        return {'error': "Missing required data information"}, 412
 
     _keys = _payload['keys']
     _data = _payload['data']
 
-    assert type(_keys) is list
-    assert type(_data) is list
+    if type(_keys) is not list:
+        return {'error': "Invalid keys type"}, 412
+
+    if type(_data) is not list:
+        return {'error': "Invalid data type"}, 412
 
     return create_nest(_data, _keys)
 
@@ -49,11 +58,13 @@ def process_json():
 def process_default_sample():
     _payload = request.get_json(silent=True, force=True) or {}
 
-    assert 'keys' in _payload, "Missing keys information"
+    if 'keys' not in _payload:
+        return {'error': "Missing required keys information"}, 412
 
     _keys = _payload['keys']
 
-    assert type(_keys) is list
+    if type(_keys) is not list:
+        return {'error': "Invalid keys type"}, 412
 
     _data = json.loads(open('sample.json').read())
 
@@ -62,13 +73,15 @@ def process_default_sample():
 
 @app.route("/create-user", methods=['POST'])
 def create_user():
+    _user_file = app.config.get('USER_FILE')
     _payload = request.get_json(silent=True, force=True) or {}
 
-    assert 'user_name' in _payload, "Missing username data"
+    if 'user_name' not in _payload:
+        return {'error': "Missing required user information"}, 412
 
     _user_name = _payload.get('user_name')
 
-    _password = json_create_user(_user_name)
+    _password = json_create_user(_user_name, _user_file)
 
     return {"user_name": _user_name, "password": _password}
 

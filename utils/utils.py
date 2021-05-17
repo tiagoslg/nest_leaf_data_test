@@ -8,13 +8,13 @@ from werkzeug.security import generate_password_hash
 def get_random_string(length):
     # choose from all lowercase letter
     letters = string.ascii_lowercase + string.ascii_uppercase + string.digits
-    result_str = ''.join(random.choice(letters) for i in range(length))
+    result_str = ''.join(random.choice(letters) for _ in range(length))
 
     return result_str
 
 
-def create_user(user_name):
-    _users = json.loads(open('users.json').read())
+def create_user(user_name, user_file):
+    _users = json.loads(open(user_file).read())
 
     _password = get_random_string(8)
 
@@ -22,7 +22,7 @@ def create_user(user_name):
         user_name: generate_password_hash(_password)
     })
 
-    with open('users.json', 'w') as f:
+    with open(user_file, 'w') as f:
         f.write(json.dumps(_users))
 
     return _password
